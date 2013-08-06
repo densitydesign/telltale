@@ -12,6 +12,9 @@ var express = require('express')
   , fs = require('fs')
   , passport = require('passport')
   , logger = require('mean-logger')
+  , cookie  =   require('cookie')
+  , connect =   require('connect')
+
 
 /**
  * Main application entry file.
@@ -47,11 +50,62 @@ require('./config/routes')(app, passport, auth)
 
 // Start the app by listening on <port>
 var port = process.env.PORT || 3000
-app.listen(port)
-console.log('Express app started on port '+port)
 
 //Initializing logger 
 logger.init(app, passport, mongoose)
+
+
+//Sockets
+
+var server = require('http').createServer(app)
+var sockets = require('./config/sockets.js');
+//Plug socket.io to server
+var io = global.io = require('socket.io').listen(server)
+
+var RedisStore = require('socket.io/lib/stores/redis')
+  , redis  = require('socket.io/node_modules/redis')
+  , pub    = redis.createClient()
+  , sub    = redis.createClient()
+  , client = redis.createClient();
+
+io.set('store', new RedisStore({
+  redis: redis
+  , redisPub : pub
+  , redisSub : sub
+  , redisClient : client
+}));
+
+// Socket.io authorization
+io.set('authorization', function (handshakeData, accept) {
+  console.log("Authorization");
+
+  if (handshakeData.headers.cookie) {
+    handshakeData.cookie = cookie.parse(handshakeData.headers.cookie);
+
+    handshakeData.sessionID = connect.utils.parseSignedCookie(handshakeData.cookie['connect.sid'], 'MEAN');
+
+    if (handshakeData.cookie['connect.sid'] == handshakeData.sessionID) {
+      return accept('Cookie is invalid.', false);
+    }
+
+  } else {
+    return accept('No cookie transmitted.', false);
+  } 
+
+  accept(null, true);
+});
+
+io.set('log level', 1);
+
+//Set all the socket events when a connection is started 
+io.on('connection',sockets);
+
+
+
+//Start server
+server.listen(port);
+console.log('Express app started on port '+port)
+
 
 // expose app
 exports = module.exports = app

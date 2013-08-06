@@ -32,7 +32,10 @@
     "view-helpers": "latest",
     "forever": "latest",
     "mean-logger": "latest",
-    "bower": "latest"
+    "bower": "latest",
+    "socket.io": "~0.9.16",
+    "cookie": "~0.1.0",
+    "connect": "~2.8.4"
   },
   "devDependencies": {
     "supertest": "latest",
