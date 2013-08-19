@@ -40,7 +40,8 @@ See the [config](config/) folder and especially the [config.js](config/config.js
     http://localhost:3000
     
 ## Getting Started
-  We pre-included an article example, check it out:
+We pre-included an article example, check it out:
+
   * [The Model](app/models/article.js) - Where we define our object schema.
   * [The Controller](app/controllers/articles.js) - Where we take care of our backend logic.
   * [NodeJS Routes](config/routes.js) - Where we define our REST service routes.
@@ -56,7 +57,9 @@ A `stack` is what we call collection of components in the client and the server,
 
 The best way to do it (coming soon) is to call:
 
-  yo genrate mean:stack STACK_NAME
+```
+yo genrate mean:stack STACK_NAME
+```
 
 Until our yeoman generator is out, let's look at how we build the `articles` stack example. 
   
@@ -64,19 +67,19 @@ Until our yeoman generator is out, let's look at how we build the `articles` sta
 Let's say we want to create the stack `articles`. We start by creating the model for our book. We'll create a new file called `article.js` under `app/models`. First we need to include the `mongoose` dependencies:
 
 ```
-  var mongoose = require('mongoose')
-  , Schema = mongoose.Schema;
+var mongoose = require('mongoose')
+, Schema = mongoose.Schema;
 ```
 
 Then, we need to define our schema:
 
 ```
-  var ArticleSchema = new Schema({
-    created: {type : Date, default : Date.now},
-    title: {type: String, default: '', trim : true},
-    content: {type: String, default: '', trim : true},
-    user: {type : Schema.ObjectId, ref : 'User'}
-  });
+var ArticleSchema = new Schema({
+  created: {type : Date, default : Date.now},
+  title: {type: String, default: '', trim : true},
+  content: {type: String, default: '', trim : true},
+  user: {type : Schema.ObjectId, ref : 'User'}
+});
 ```
   
 In addition to the obvious properties in our schema, notice we aded the `user` property, which is contains a reference to the `user` object. This will helps us figure out which users created which articles. 
@@ -84,11 +87,11 @@ In addition to the obvious properties in our schema, notice we aded the `user` p
 We included another function to our `ArticleSchema`:
 
 ```
-  ArticleSchema.statics = {
-      load: function (id, cb) {
-      this.findOne({ _id : id }).populate('user').exec(cb);
-      }
-  };
+ArticleSchema.statics = {
+    load: function (id, cb) {
+    this.findOne({ _id : id }).populate('user').exec(cb);
+    }
+};
 ```
 
 This function will allow us to load a specific article, and populate the article schema with the corresponding user data. 
@@ -98,10 +101,10 @@ We create a file under `app/controllers`, and call it `articles.js`.
 First, we declare our dependcies: 
 
 ```
-  var mongoose = require('mongoose')
-    , async = require('async')
-    , Article = mongoose.model('Article')
-    , _ = require('underscore')   
+var mongoose = require('mongoose')
+  , async = require('async')
+  , Article = mongoose.model('Article')
+  , _ = require('underscore')   
 ```
     
 (We use underscore for it's `._extend` method.)
@@ -111,15 +114,15 @@ We then expose the Mongoose methods to the `express.js` endpoint.
 #####Load an entry
 
 ```
-  exports.article = function(req, res, next, id){
-      var User = mongoose.model('User')
-    Article.load(id, function (err, article) {
-        if (err) return next(err)
-        if (!article) return next(new Error('Failed to load article ' + id))
-        req.article = article
-        next()
-      })
-  } 
+exports.article = function(req, res, next, id){
+    var User = mongoose.model('User')
+  Article.load(id, function (err, article) {
+      if (err) return next(err)
+      if (!article) return next(new Error('Failed to load article ' + id))
+      req.article = article
+      next()
+    })
+} 
 ```
   
 We load the article by ID, and populate our `request` object with the article we found. Notice that since we called the `load` method we defined in the model, the request will also include the user related data for that entry.
@@ -127,12 +130,12 @@ We load the article by ID, and populate our `request` object with the article we
 #####Create an entry
 
 ```
-  exports.create = function (req, res) {
-      var article = new Article(req.body)
-      article.user = req.user
-      article.save()
-      res.jsonp(article)
-  }
+exports.create = function (req, res) {
+    var article = new Article(req.body)
+    article.user = req.user
+    article.save()
+    res.jsonp(article)
+}
 ```
   
 This method is very straight forward - we get the article body (in `req.body`) and the user object id (in `req.user`). Later on we'll see how that data arrives from the client. 
@@ -140,14 +143,14 @@ This method is very straight forward - we get the article body (in `req.body`) a
 #####Update an entry
 
 ```
-  exports.update = function(req, res){
-      var article = req.article
-      article = _.extend(article, req.body)
+exports.update = function(req, res){
+    var article = req.article
+    article = _.extend(article, req.body)
 
-      article.save(function(err) {
-        res.jsonp(article)
-      })
-  }
+    article.save(function(err) {
+      res.jsonp(article)
+    })
+}
 ```
   
 We use the underscore method `_.extend` to copy the req.body into the article object, and then save the article. 
@@ -155,16 +158,16 @@ We use the underscore method `_.extend` to copy the req.body into the article ob
 #####Delete an entry
 
 ```
-  exports.destroy = function(req, res){
-      var article = req.article
-      article.remove(function(err){
-        if (err) {
-        res.render('error', {status: 500});
-      } else {      
-        res.jsonp(article);
-      }
-      })
-  }
+exports.destroy = function(req, res){
+    var article = req.article
+    article.remove(function(err){
+      if (err) {
+      res.render('error', {status: 500});
+    } else {      
+      res.jsonp(article);
+    }
+    })
+}
 ```
 
 Nothing special going on here.
@@ -172,14 +175,14 @@ Nothing special going on here.
 ###3. Add authorization middlware
 
 ```
-  exports.article = {
-      hasAuthorization : function (req, res, next) {
-          if (req.article.user.id != req.user.id) {
-          return res.redirect('/articles/'+req.article.id)
-        }
-          next()
+exports.article = {
+    hasAuthorization : function (req, res, next) {
+        if (req.article.user.id != req.user.id) {
+        return res.redirect('/articles/'+req.article.id)
       }
-  }
+        next()
+    }
+}
 ```
 
 ###4. Add Routes
@@ -189,35 +192,130 @@ To expose our contoller with Express, we'll add some new routes in the `config/r
 First we require our controller:
 
 ```
-  var articles = require('../app/controllers/articles')  
+var articles = require('../app/controllers/articles')  
 ```
   
 Then, let's add the routes that don't require any kind of authrization middleware.
 
 ```
-      app.get('/articles', articles.all)
-      app.get('/articles/:articleId', articles.show)
+app.get('/articles', articles.all)
+app.get('/articles/:articleId', articles.show)
 ```
 
 Now we'll add the routes that require middleware. 
 
 ```
-      app.post('/articles', 
-        auth.requiresLogin, 
-        articles.create)
-      app.put('/articles/:articleId', 
-        auth.requiresLogin,     
-        auth.article.hasAuthorization, 
-        articles.update)
-      app.del('/articles/:articleId', 
-        auth.requiresLogin, 
-        auth.article.hasAuthorization, 
-        articles.destroy)
-
-      app.param('articleId', articles.article)
+app.post('/articles', 
+  auth.requiresLogin, 
+  articles.create)
+  
+app.put('/articles/:articleId', 
+  auth.requiresLogin,     
+  auth.article.hasAuthorization, 
+  articles.update)
+  
+app.del('/articles/:articleId', 
+  auth.requiresLogin, 
+  auth.article.hasAuthorization, 
+  articles.destroy)
 ```
 
-##Middleware and Authentication
+The last thing we have to do is to use the magic `.param` method to add the article ID to the express request object.
+
+```
+app.param('articleId', articles.article)
+```
+
+Time to move to the client. 
+
+
+###5. Configure the angular.js routes
+
+
+###6. Add an angular.js service
+
+
+```
+//Articles service used for articles REST endpoint
+window.app.factory("Articles", function($resource) {
+    return $resource('articles/:articleId', {
+        articleId: '@_id'
+    }, {
+        update: {
+            method: 'PUT'
+        }
+    });
+});
+```
+
+
+###5. Add an angular.js controller
+
+Note we're passing the `Global` service, as well as the `Articles` service we just created.
+
+```
+function ArticlesController($scope, $routeParams, $location, Global, Articles) {
+
+}
+
+```
+
+Next, we're adding the client side controller methods. Notice they correspond directly to the CRUD endpoints we created before.
+
+```
+function ArticlesController($scope, $routeParams, $location, Global, Articles) {
+    $scope.global = Global;
+    $scope.create = function() {
+        var article = new Articles({
+            title: this.title,
+            content: this.content
+        });
+        article.$save(function(response) {
+            $location.path("articles/" + response._id);
+        });
+
+        this.title = "";
+        this.content = "";
+    };
+
+    $scope.remove = function(article) {
+        article.$remove();
+
+        for (var i in $scope.articles) {
+            if ($scope.articles[i] == article) {
+                $scope.articles.splice(i, 1);
+            }
+        }
+    };
+
+    $scope.update = function() {
+        var article = $scope.article;
+        if (!article.updated) {
+            article.updated = [];
+        }
+        article.updated.push(new Date().getTime());
+
+        article.$update(function() {
+            $location.path('articles/' + article._id);
+        });
+    };
+
+    $scope.find = function(query) {
+        Articles.query(query, function(articles) {
+            $scope.articles = articles;
+        });
+    };
+
+    $scope.findOne = function() {
+        Articles.get({
+            articleId: $routeParams.articleId
+        }, function(article) {
+            $scope.article = article;
+        });
+    };
+}
+
+```
 
 
 
