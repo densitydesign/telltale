@@ -63,27 +63,33 @@ Until our yeoman generator is out, let's look at how we build the `articles` sta
 ###1. Create your model
 Let's say we want to create the stack `articles`. We start by creating the model for our book. We'll create a new file called `article.js` under `app/models`. First we need to include the `mongoose` dependencies:
 
+```
   var mongoose = require('mongoose')
-    , Schema = mongoose.Schema;
+  , Schema = mongoose.Schema;
+```
 
 Then, we need to define our schema:
 
+```
   var ArticleSchema = new Schema({
     created: {type : Date, default : Date.now},
     title: {type: String, default: '', trim : true},
     content: {type: String, default: '', trim : true},
     user: {type : Schema.ObjectId, ref : 'User'}
   });
+```
   
 In addition to the obvious properties in our schema, notice we aded the `user` property, which is contains a reference to the `user` object. This will helps us figure out which users created which articles. 
 
 We included another function to our `ArticleSchema`:
 
+```
   ArticleSchema.statics = {
       load: function (id, cb) {
       this.findOne({ _id : id }).populate('user').exec(cb);
       }
   };
+```
 
 This function will allow us to load a specific article, and populate the article schema with the corresponding user data. 
 
@@ -91,16 +97,20 @@ This function will allow us to load a specific article, and populate the article
 We create a file under `app/controllers`, and call it `articles.js`.
 First, we declare our dependcies: 
 
+```
   var mongoose = require('mongoose')
     , async = require('async')
     , Article = mongoose.model('Article')
-    , _ = require('underscore')
+    , _ = require('underscore')   
+```
+    
 (We use underscore for it's `._extend` method.)
 
 We then expose the Mongoose methods to the `express.js` endpoint.
 
 #####Load an entry
 
+```
   exports.article = function(req, res, next, id){
       var User = mongoose.model('User')
     Article.load(id, function (err, article) {
@@ -110,22 +120,26 @@ We then expose the Mongoose methods to the `express.js` endpoint.
         next()
       })
   } 
+```
   
 We load the article by ID, and populate our `request` object with the article we found. Notice that since we called the `load` method we defined in the model, the request will also include the user related data for that entry.
 
 #####Create an entry
 
+```
   exports.create = function (req, res) {
       var article = new Article(req.body)
       article.user = req.user
       article.save()
       res.jsonp(article)
   }
+```
   
 This method is very straight forward - we get the article body (in `req.body`) and the user object id (in `req.user`). Later on we'll see how that data arrives from the client. 
   
 #####Update an entry
 
+```
   exports.update = function(req, res){
       var article = req.article
       article = _.extend(article, req.body)
@@ -134,9 +148,13 @@ This method is very straight forward - we get the article body (in `req.body`) a
         res.jsonp(article)
       })
   }
+```
+  
 We use the underscore method `_.extend` to copy the req.body into the article object, and then save the article. 
   
 #####Delete an entry
+
+```
   exports.destroy = function(req, res){
       var article = req.article
       article.remove(function(err){
@@ -147,35 +165,43 @@ We use the underscore method `_.extend` to copy the req.body into the article ob
       }
       })
   }
+```
 
 Nothing special going on here.
 
 ###3. Add authorization middlware
 
+```
   exports.article = {
       hasAuthorization : function (req, res, next) {
           if (req.article.user.id != req.user.id) {
           return res.redirect('/articles/'+req.article.id)
         }
-        next()
+          next()
       }
-    }
-
+  }
+```
 
 ###4. Add Routes
 
 To expose our contoller with Express, we'll add some new routes in the `config/routes.js` file.
 
 First we require our controller:
+
+```
   var articles = require('../app/controllers/articles')  
+```
   
 Then, let's add the routes that don't require any kind of authrization middleware.
 
+```
       app.get('/articles', articles.all)
       app.get('/articles/:articleId', articles.show)
+```
 
 Now we'll add the routes that require middleware. 
 
+```
       app.post('/articles', 
         auth.requiresLogin, 
         articles.create)
@@ -189,7 +215,7 @@ Now we'll add the routes that require middleware.
         articles.destroy)
 
       app.param('articleId', articles.article)
-
+```
 
 ##Middleware and Authentication
 
