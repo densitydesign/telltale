@@ -316,7 +316,7 @@ function ArticlesController($scope, $routeParams, $location, Global, Articles) {
 }
 
 ```
-
+tst
 
 
 ## MEAN Modules
