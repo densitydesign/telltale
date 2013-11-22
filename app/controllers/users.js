@@ -83,7 +83,12 @@ exports.show = function(req, res) {
  * Send User
  */
 exports.me = function(req, res) {
-    res.jsonp(req.user || null);
+    if(req.user) {
+        res.jsonp(req.user);
+    }
+    else {
+        res.send();
+    }
 };
 
 /**
