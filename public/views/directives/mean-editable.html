@@ -1,0 +1,11 @@
+<span class="editable-wrapper">
+    <span data-ng-hide="inEdit"
+    	  data-ng-click="startEditing();" 
+    	  data-ng-bind="currentModel"></span>
+    <input type="text" 
+    	   data-ng-show="inEdit" 
+    	   data-ng-model="currentModel" 
+    	   data-ng-blur="cancelEditing()" 
+    	   data-mean-enter-pressed="finishEditing()" 
+    	   data-mean-escape-pressed="cancelEditing()" />
+</span>
