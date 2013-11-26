@@ -12,14 +12,21 @@ var mongoose = require('mongoose'),
  * User Schema
  */
 var UserSchema = new Schema({
-    name: String,
+    firstName: String,
+    lastName: String,
     email: String,
-    username: {
-        type: String,
-        unique: true
-    },
+    username: String,
     provider: String,
+    company: String,
+    bio: {
+        type: String,
+        default: "This is my biography"
+    },
     hashed_password: String,
+    role: {
+        type: String,
+        default: "user"
+    },
     salt: String,
     facebook: {},
     twitter: {},
@@ -31,10 +38,13 @@ var UserSchema = new Schema({
  * Virtuals
  */
 UserSchema.virtual('password').set(function(password) {
+    console.log("Here", password);
+    
     this._password = password;
     this.salt = this.makeSalt();
     this.hashed_password = this.encryptPassword(password);
 }).get(function() {
+    console.log("There", this._password);
     return this._password;
 });
 
@@ -46,11 +56,17 @@ var validatePresenceOf = function(value) {
 };
 
 // the below 4 validations only apply if you are signing up traditionally
-UserSchema.path('name').validate(function(name) {
+UserSchema.path('firstName').validate(function(name) {
     // if you are authenticating by any of the oauth strategies, don't validate
     if (authTypes.indexOf(this.provider) !== -1) return true;
     return name.length;
-}, 'Name cannot be blank');
+}, 'First name cannot be blank');
+
+UserSchema.path('lastName').validate(function(name) {
+    // if you are authenticating by any of the oauth strategies, don't validate
+    if (authTypes.indexOf(this.provider) !== -1) return true;
+    return name.length;
+}, 'Last name cannot be blank');
 
 UserSchema.path('email').validate(function(email) {
     // if you are authenticating by any of the oauth strategies, don't validate

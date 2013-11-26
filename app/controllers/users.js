@@ -2,7 +2,8 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose'),
-    User = mongoose.model('User');
+    User = mongoose.model('User'),
+    _ = require('underscore');
 
 /**
  * Auth callback
@@ -47,9 +48,9 @@ exports.session = function(req, res) {
 };
 
 /**
- * Create user
+ * New Signup User
  */
-exports.create = function(req, res) {
+exports.new = function(req, res) {
     var user = new User(req.body);
 
     user.provider = 'local';
@@ -68,41 +69,95 @@ exports.create = function(req, res) {
 };
 
 /**
+ * Create user
+ */
+exports.create = function(req, res) {
+    var user = new User(req.body);
+
+    user.provider = 'local';
+    user.save(function(err) {
+        if (err) {
+            console.log(err);
+            res.render('error', {
+                status: 500
+            });
+        } else {
+            res.jsonp(user);
+        }
+    });
+};
+
+/**
+ * Update a user
+ */
+exports.update = function(req, res) {
+    var user = req.profile;
+    user = _.extend(user, req.body);
+    
+    user.save(function(err) {
+        res.jsonp(user);
+    });
+};
+
+/**
+ * Delete an user
+ */
+exports.destroy = function(req, res) {
+    var user = req.profile;
+    
+    user.remove(function(err) {
+        if (err) {
+            res.render('error', {
+                status: 500
+            });
+        } else {
+            res.jsonp(user);
+        }
+    });
+};
+
+
+/**
  *  Show profile
  */
 exports.show = function(req, res) {
     var user = req.profile;
-
-    res.render('users/show', {
-        title: user.name,
-        user: user
-    });
+    res.jsonp(user);
 };
 
 /**
  * Send User
  */
 exports.me = function(req, res) {
-    if(req.user) {
-        res.jsonp(req.user);
-    }
-    else {
-        res.send();
-    }
+    res.jsonp(req.user || null);
 };
 
 /**
  * Find user by id
  */
 exports.user = function(req, res, next, id) {
-    User
-        .findOne({
-            _id: id
-        })
-        .exec(function(err, user) {
-            if (err) return next(err);
-            if (!user) return next(new Error('Failed to load User ' + id));
-            req.profile = user;
-            next();
-        });
+    User.findOne({
+        _id: id
+    }).exec(function(err, user) {
+        if (err) return next(err);
+        if (!user) return next(new Error('Failed to load User ' + id));
+        req.profile = user;
+        next();
+    });
+};
+
+
+/**
+ * List of Users
+ */
+exports.all = function(req, res) {
+    User.find().sort('-created').populate('user', 'name username').exec(function(err, users) {
+        if (err) {
+            res.render('error', {
+                status: 500
+            });
+        } else {
+            res.jsonp(users);
+        }
+    });
 };

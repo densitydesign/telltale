@@ -17,6 +17,13 @@ exports.user = {
             return res.send(401, 'User is not authorized');
         }
         next();
+    },
+    isAdmin: function(req, res, next) {
+        console.log(req.user);
+        if (req.user.role !== "admin") {
+            return res.send(401, 'User is not authorized');
+        }
+        next();
     }
 };
 

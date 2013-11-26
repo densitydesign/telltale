@@ -6,7 +6,12 @@ module.exports = function(app, passport, auth) {
     app.get('/signout', users.signout);
 
     //Setting up the users api
-    app.post('/users', users.create);
+    app.get('/users', auth.requiresLogin, auth.user.isAdmin, users.all);
+    app.post('/users', auth.requiresLogin, auth.user.isAdmin, users.create);
+    app.put('/users/:userId', auth.requiresLogin, auth.user.isAdmin, users.update);
+    app.del('/users/:userId', auth.requiresLogin, auth.user.isAdmin, users.destroy);
+    
+    app.post('/users/signin', users.new);
 
     app.post('/users/session', passport.authenticate('local', {
         failureRedirect: '/signin',

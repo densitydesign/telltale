@@ -25,11 +25,12 @@ angular.module('mean').config(['$routeProvider',
             templateUrl: 'views/articles/view.html',
             resolve: authenticationResolver
         }).
-        when('/', {
-            templateUrl: 'views/index.html'
+        when('/users', {
+            templateUrl: 'views/users.html',
+            resolve: authenticationResolver
         }).
         otherwise({
-            redirectTo: '/'
+            redirectTo: '/users'
         });
     }
 ]);
