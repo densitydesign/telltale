@@ -72,6 +72,10 @@ module.exports = function(app, passport, auth) {
     //Finish with setting up the articleId param
     app.param('articleId', articles.article);
 
+    //Twitter Routes
+    var tweets = require('../app/controllers/tweets');
+    app.get('/api/tweets', tweets.all);
+
     //Home route
     var index = require('../app/controllers/index');
     app.get('/', index.render);
