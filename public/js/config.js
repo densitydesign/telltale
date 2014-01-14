@@ -1,7 +1,7 @@
 'use strict';
 
 //Setting up route
-angular.module('mean').config(['$routeProvider',
+angular.module('telltale').config(['$routeProvider',
     function($routeProvider) {
         $routeProvider.
         when('/articles', {
@@ -19,6 +19,12 @@ angular.module('mean').config(['$routeProvider',
         when('/', {
             templateUrl: 'views/index.html'
         }).
+        when('/summa', {
+            templateUrl: 'views/summa.html'
+        }).
+        when('/activities', {
+            templateUrl: 'views/activities.html'
+        }).
         otherwise({
             redirectTo: '/'
         });
@@ -26,7 +32,7 @@ angular.module('mean').config(['$routeProvider',
 ]);
 
 //Setting HTML5 Location Mode
-angular.module('mean').config(['$locationProvider',
+angular.module('telltale').config(['$locationProvider',
     function($locationProvider) {
         $locationProvider.hashPrefix('!');
     }

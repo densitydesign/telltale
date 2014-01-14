@@ -1,6 +1,17 @@
 'use strict';
 
-angular.module('mean', ['ngCookies', 'ngResource', 'ngRoute', 'ui.bootstrap', 'ui.route', 'mean.system', 'mean.articles']);
+angular.module('telltale', [
+	'ngCookies', 
+	'ngResource', 
+	'ngRoute', 
+	'ui.bootstrap', 
+	'ui.route', 
+	'telltale.system', 
+	'telltale.articles', 
+	'telltale.summa', 
+	'telltale.directives'
+	]);
 
-angular.module('mean.system', []);
-angular.module('mean.articles', []);
+angular.module('telltale.system', []);
+angular.module('telltale.articles', []);
+angular.module('telltale.summa', []);
