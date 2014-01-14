@@ -2,7 +2,7 @@
 .nodemonignore
 .sass-cache/
 node_modules/
-public/lib
+public/lib/*
 !public/lib/telltale/*
 !public/lib/stamen/*
 test/coverage/
