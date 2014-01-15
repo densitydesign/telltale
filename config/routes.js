@@ -74,7 +74,7 @@ module.exports = function(app, passport, auth) {
 
     //Twitter Routes
     var tweets = require('../app/controllers/tweets');
-    app.get('/api/tweets', tweets.all);
+    app.post('/api/tweets', tweets.all);
 
     //Home route
     var index = require('../app/controllers/index');
