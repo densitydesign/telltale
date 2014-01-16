@@ -11,7 +11,7 @@ var mongoose = require('mongoose'),
 /**
  * List of Tweets
  */
-exports.all = function(req, res) {
+exports.points = function(req, res) {
     var o = {};
     o.map = function () { 
             var _day,
@@ -49,29 +49,78 @@ exports.all = function(req, res) {
     //     }
     // });
 
-    Twitter.mapReduce(o, function(err, tweets) {
-        if (err) {
-            res.render('error', {
-                status: 500
-            });
-        } else {
-            var geojson = {type: "FeatureCollection", features: []}
+    Twitter.aggregate(
+        { $match : {created_at: {$gte: new Date(req.body.start), $lt: new Date(req.body.end)}} },
+        { $group: {
+            _id: '$geo',
+            count: { $sum: 1 }, 
+            day: { $sum: { $cond: [ 
+                    { $and : [
+                        {$gte: [ {$hour: "$created_at"}, 6 ] },
+                        {$lt: [  {$hour: "$created_at"}, 23 ] }
+                        ]
+                    }, 
+                    1, 
+                    0 
+                    ]} 
+                },
+            night: { $sum: { $cond: [ 
+                    { $and : [
+                        {$gte: [  {$hour: "$created_at"}, 6 ] },
+                        {$lt: [  {$hour: "$created_at"}, 23 ] }
+                        ]
+                    }, 
+                    0, 
+                    1 
+                    ]} 
+                }
+        }},
+        { $sort : { count : -1} },
+        { $project: {
+            type: {$concat: ["", "Feature"]}, 
+            geometry: "$_id",
+            _id: 0,
+            properties: {
+                count: "$count",
+                day: "$day",
+                night: "$night"
+            } 
+        }}, 
+        function (err, tweets) {
+            if (err){
+                res.render('error',{
+                    status:500
+                });
+                }
+            else{
+                var geojson = {type: "FeatureCollection", features: tweets}
+                res.json(geojson); 
+            }
+        });
 
-            tweets.forEach(function(d){
-                var feature = {
-                    "type": "Feature",
-                    "geometry": d._id,
-                    "properties": d.value
-                };
-                geojson.features.push(feature)
-            })
-            var  propertyTransform = function (properties, key, value) {
-                    properties[key] = value;
-                    return true;
-                };
+    // Twitter.mapReduce(o, function(err, tweets) {
+    //     if (err) {
+    //         res.render('error', {
+    //             status: 500
+    //         });
+    //     } else {
+    //         var geojson = {type: "FeatureCollection", features: []}
 
-            var topology = topojson.topology({'collection': geojson}, {'property-transform': propertyTransform});
-            res.json(geojson);
-        }
-    });
+    //         tweets.forEach(function(d){
+    //             var feature = {
+    //                 "type": "Feature",
+    //                 "geometry": d._id,
+    //                 "properties": d.value
+    //             };
+    //             geojson.features.push(feature)
+    //         })
+    //         var  propertyTransform = function (properties, key, value) {
+    //                 properties[key] = value;
+    //                 return true;
+    //             };
+
+    //         var topology = topojson.topology({'collection': geojson}, {'property-transform': propertyTransform});
+    //         res.json(geojson);
+    //     }
+    // });
 };

@@ -35,5 +35,7 @@ angular.module('telltale').config(['$routeProvider',
 angular.module('telltale').config(['$locationProvider',
     function($locationProvider) {
         $locationProvider.hashPrefix('!');
+        //$locationProvider.html5Mode(true);
     }
 ]);
+
