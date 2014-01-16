@@ -9,37 +9,46 @@
         zoom,
         center,
         southWest,
-        northEast;
-
+        northEast,
+        m,
+        tonerLite,
+        point;
 
     function map(selection){
       selection.each(function(data){
-        console.log(data)
-        var tonerLite = new L.StamenTileLayer("toner-lite"),
-            m = L.map(this, {
+
+        var geojsonMarkerOptions =  {fillColor: 'blue', fillOpacity: 0.6, stroke: false, radius: 2};
+
+        if (!m) {
+          m = L.map(this, {
               center: new L.LatLng(center[0], center[1]),
               zoom: zoom,
               scrollWheelZoom : false
           });
+        }
         
-        tonerLite.setOpacity(0.3)
-        m.addLayer(tonerLite)
-
-        var geojsonMarkerOptions =  {fillColor: 'blue', fillOpacity: 0.6, stroke: false, radius: 2};
-
-        L.geoJson(data.features, {
-          pointToLayer: function (feature, latlng) {
-            var circleLocation = new L.LatLng(feature.geometry.coordinates[0], feature.geometry.coordinates[1])
-            return L.circleMarker(circleLocation, geojsonMarkerOptions);
-          }
-        }).addTo(m);
+        if (!tonerLite){ 
+            tonerLite = new L.StamenTileLayer("toner-lite")
+            tonerLite.setOpacity(0.3)
+            m.addLayer(tonerLite)
+        }
         
-        // data.features.forEach(function(d){
-        //   var circleLocation = new L.LatLng(d.geometry.coordinates[0], d.geometry.coordinates[1]),
-        //       circleMarker = new L.CircleMarker(circleLocation, {fillColor: 'blue', fillOpacity: 0.6, stroke: false, radius: 2});
+        if (!point){
+          point = L.geoJson(data.features, {
+            pointToLayer: function (feature, latlng) {
+              var circleLocation = new L.LatLng(feature.geometry.coordinates[0], feature.geometry.coordinates[1])
+              return L.circleMarker(circleLocation, geojsonMarkerOptions);
+              }
+          })
 
-        // m.addLayer(circleMarker);
-        // })
+          point.addTo(m);
+        }else{
+          point.clearLayers();
+          point.addData(data.features)
+        }
+        
+        
+
       });
     }
 

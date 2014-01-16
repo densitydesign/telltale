@@ -4,8 +4,8 @@ angular.module('telltale.summa').controller('SummaController', ['$scope', '$rout
   
   $scope.global = Global;
   $scope.default = {    
-    start: new Date(2013,9,19,0,0,0),
-    end: new Date(2013,9,20,0,0,0)
+    start: new Date(2013,9,15,0,0,0),
+    end: new Date(2013,9,21,0,0,0)
   }
 
   //set map config
@@ -16,8 +16,8 @@ angular.module('telltale.summa').controller('SummaController', ['$scope', '$rout
 
   // set request to api
   $scope.request = {
-    start: new Date(2013,9,19,0,0,0),
-    end: new Date(2013,9,20,0,0,0),
+    start: new Date(2013,9,15,0,0,0),
+    end: new Date(2013,9,21,0,0,0),
     format: 'topojson'
   }
 
