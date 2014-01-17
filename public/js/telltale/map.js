@@ -23,13 +23,16 @@
           m = L.map(this, {
               center: new L.LatLng(center[0], center[1]),
               zoom: zoom,
-              scrollWheelZoom : false
+              scrollWheelZoom : false,
+              zoomControl: false
           });
+
+          m.addControl( L.control.zoom({position: 'topright'}) )
         }
         
         if (!tonerLite){ 
             tonerLite = new L.StamenTileLayer("toner-lite")
-            tonerLite.setOpacity(0.3)
+            //tonerLite.setOpacity(0.3)
             m.addLayer(tonerLite)
         }
         

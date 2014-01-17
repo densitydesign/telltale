@@ -1,3 +1,10 @@
+
+html,
+body {
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+}
+
 .navbar .nav>li>a.brand {
     padding-left:20px;
     margin-left:0
@@ -55,14 +62,26 @@ footer {
     position:fixed;
     left:0px;
     bottom:0px;
-    height:30px;
+    height:60px;
     width:100%;
-    background:#ddd;
-    -webkit-box-shadow:0 8px 6px 6px black;
-    -moz-box-shadow:0 8px 6px 6px black;
-    box-shadow:0 8px 6px 6px black
+    background:#343838;
+    overflow: hidden;
 }
 
 footer p {
     padding:5px 0 12px 10px
+}
+
+.container-fill{
+    margin: 0 auto;
+    height: 100%;
+    padding: 40px 0 60px;
+
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.fill {
+    height: 100%;   
 }
